@@ -1,10 +1,10 @@
-import { SignUpForm } from "./forms/SignUpForm";
+import { UserEditForm } from "./forms/UserEditForm";
 import "./style/AllForms.css";
 
 const App = () => {
   return (
     <>
-      <SignUpForm />
+      <UserEditForm />
     </>
   );
 };
