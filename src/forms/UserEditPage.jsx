@@ -59,7 +59,7 @@ const UserEditForm = ({
     return await onSubmit(data);
   };
 
-  useEffect(() => {
+  React.useEffect(() => {
     reset(defaultValues);
   }, [defaultValues, reset]);
 
