@@ -1,27 +1,21 @@
 import React, { useEffect } from "react";
-import { useForm } from "react-hook-form";
+import { set, useForm } from "react-hook-form";
 import z from "zod";
 import { customZodResolver } from "../utils/customZodResolver";
 
 export const UserEditPage = () => {
-  const [userData, setUserData] = React.useState(null);
+  const { userData, fetchUserData, updateUserData, error, loading } =
+    useUserData();
 
-  const handleUpdateUser = async (data) => {
-    const updatedUser = await updateUserData(data);
-    alert("User updated successfully!");
-    setUserData(updatedUser);
-    return true;
-  };
-
-  React.useEffect(() => {
-    fetchUserData().then((data) => setUserData(data));
-  }, []);
+  React.useEffect(() => fetchUserData(), []);
 
   return (
     <>
       {userData && (
-        <UserEditForm defaultValues={userData} onSubmit={handleUpdateUser} />
+        <UserEditForm defaultValues={userData} onSubmit={updateUserData} />
       )}
+      {loading && <p>Loading...</p>}
+      {error && <p role="alert">Error fetching user data</p>}
     </>
   );
 };
@@ -63,11 +57,7 @@ const UserEditForm = ({
   }, [defaultValues, reset]);
 
   return (
-    <form
-      onSubmit={handleSubmit(onFormSubmit, (err) =>
-        console.error("Submit error:", err)
-      )}
-    >
+    <form onSubmit={handleSubmit(onFormSubmit)}>
       <input type="hidden" {...register("id")} />
 
       <label>
@@ -99,40 +89,57 @@ const UserEditForm = ({
   );
 };
 
-async function fetchUserData() {
-  const id = getStoredId();
+const useUserData = (initialData) => {
+  const [userData, setUserData] = React.useState(initialData);
+  const [error, setError] = React.useState(null);
+  const [loading, setLoading] = React.useState(false);
 
-  try {
-    const response = await fetch(
-      `https://jsonplaceholder.typicode.com/users/${id}`
-    );
-    const data = await response.json();
+  async function fetchUserData() {
+    const id = getStoredId();
+    setLoading(true);
 
-    return data;
-  } catch (error) {
-    console.error("Error fetching user data:", error);
+    try {
+      const response = await fetch(
+        `https://jsonplaceholder.typicode.com/users/${id}`
+      );
+      const data = await response.json();
+
+      setUserData(data);
+    } catch (error) {
+      console.error("Error fetching user data:", error);
+      setError(error);
+    } finally {
+      setLoading(false);
+    }
   }
-}
 
-async function updateUserData(data) {
-  try {
-    const response = await fetch(
-      `https://jsonplaceholder.typicode.com/users/${data.id}`,
-      {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-      }
-    );
-    const result = await response.json();
+  async function updateUserData(data) {
+    setLoading(true);
+    try {
+      const response = await fetch(
+        `https://jsonplaceholder.typicode.com/users/${data.id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(data),
+        }
+      );
+      const result = await response.json();
 
-    return result;
-  } catch (error) {
-    console.error("Error updating user data:", error);
+      setUserData(result);
+      alert("User updated successfully!");
+    } catch (error) {
+      console.error("Error updating user data:", error);
+    } finally {
+      setLoading(false);
+      return true; // returning something for useForm() to know and set `isSubmitting` state
+    }
   }
-}
+
+  return { userData, error, loading, fetchUserData, updateUserData };
+};
 
 function getStoredId() {
   const id = Number(localStorage.getItem("reactHookForm_practice")) || 1;
