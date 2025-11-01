@@ -14,7 +14,7 @@ export const UserEditPage = () => {
 };
 
 const schema = z.object({
-  id: z.uuid(),
+  id: z.number().min(1).max(10),
   name: z.string().nonempty("Name is required"),
   email: z.email("Please enter a valid email address"),
   phone: z
