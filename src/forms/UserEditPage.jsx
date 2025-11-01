@@ -73,7 +73,7 @@ const UserEditForm = ({ defaultValues }) => {
 };
 
 async function fetchUserData() {
-  const id = 1; // JSONPlaceholder user ID ranges from 1 to 10
+  const id = getStoredId();
 
   const response = await fetch(
     `https://jsonplaceholder.typicode.com/users/${id}`
@@ -81,4 +81,13 @@ async function fetchUserData() {
   const data = await response.json();
 
   return data;
+}
+
+function getStoredId() {
+  const id = Number(localStorage.getItem("reactHookForm_practice")) || 1;
+
+  //update stored id such that on new session (on refreshing page), a new default user is fetched
+  localStorage.setItem("reactHookForm_practice", id === 10 ? 1 : id + 1); // max number of users present is "10" from typicode API
+
+  return id;
 }
