@@ -10,6 +10,7 @@ export const UserEditPage = () => {
     const updatedUser = await updateUserData(data);
     alert("User updated successfully!");
     setUserData(updatedUser);
+    return true;
   };
 
   React.useEffect(() => {
@@ -46,15 +47,15 @@ const UserEditForm = ({
   const {
     register,
     handleSubmit,
-    formState: { errors, isDirty, isS },
+    formState: { errors, isDirty, isSubmitting },
     reset,
   } = useForm({
     defaultValues,
     resolver: customZodResolver(schema),
   });
 
-  const onFormSubmit = (data) => {
-    onSubmit(data);
+  const onFormSubmit = async (data) => {
+    return await onSubmit(data);
   };
 
   useEffect(() => {
@@ -89,7 +90,9 @@ const UserEditForm = ({
 
       <input
         type="submit"
-        value={isDirty ? "Save Changes" : "No Changes"}
+        value={
+          !isDirty ? "No Changes" : isSubmitting ? "Updating..." : "Update User"
+        }
         disabled={!isDirty}
       />
     </form>
