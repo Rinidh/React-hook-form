@@ -4,11 +4,13 @@ import z from "zod";
 import { customZodResolver } from "../utils/customZodResolver";
 
 export const UserEditPage = () => {
-  return (
-    <>
-      <UserEditForm />
-    </>
-  );
+  const [userData, setUserData] = React.useState(null);
+
+  React.useEffect(() => {
+    fetchUserData().then((data) => setUserData(data));
+  }, []);
+
+  return <>{userData && <UserEditForm defaultValues={userData} />}</>;
 };
 
 const schema = z.strictObject({
@@ -25,12 +27,13 @@ const schema = z.strictObject({
     .optional(),
 });
 
-const UserEditForm = () => {
+const UserEditForm = ({ defaultValues }) => {
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm({
+    defaultValues,
     resolver: customZodResolver(schema),
   });
 
@@ -68,3 +71,14 @@ const UserEditForm = () => {
     </form>
   );
 };
+
+async function fetchUserData() {
+  const id = 1; // JSONPlaceholder user ID ranges from 1 to 10
+
+  const response = await fetch(
+    `https://jsonplaceholder.typicode.com/users/${id}`
+  );
+  const data = await response.json();
+
+  return data;
+}

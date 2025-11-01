@@ -1,10 +1,10 @@
-import { UserEditForm } from "./forms/UserEditForm";
+import { UserEditPage } from "./forms/UserEditPage";
 import "./style/AllForms.css";
 
 const App = () => {
   return (
     <>
-      <UserEditForm />
+      <UserEditPage />
     </>
   );
 };
