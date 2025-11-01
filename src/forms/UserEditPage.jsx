@@ -13,7 +13,7 @@ export const UserEditPage = () => {
   return <>{userData && <UserEditForm defaultValues={userData} />}</>;
 };
 
-const schema = z.strictObject({
+const schema = z.object({
   id: z.uuid(),
   name: z.string().nonempty("Name is required"),
   email: z.email("Please enter a valid email address"),
@@ -27,18 +27,21 @@ const schema = z.strictObject({
     .optional(),
 });
 
-const UserEditForm = ({ defaultValues }) => {
+const UserEditForm = ({
+  defaultValues,
+  onSubmit = (data) => console.log(data),
+}) => {
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isDirty },
   } = useForm({
     defaultValues,
     resolver: customZodResolver(schema),
   });
 
   const onFormSubmit = (data) => {
-    console.log("Submitted", data);
+    onSubmit(data);
   };
 
   return (
@@ -67,7 +70,11 @@ const UserEditForm = ({ defaultValues }) => {
         {errors.phone && <span>{errors.phone.message}</span>}
       </label>
 
-      <input type="submit" />
+      <input
+        type="submit"
+        value={isDirty ? "Save Changes" : "No Changes"}
+        disabled={!isDirty}
+      />
     </form>
   );
 };
