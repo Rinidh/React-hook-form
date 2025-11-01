@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import z from "zod";
 import { customZodResolver } from "../utils/customZodResolver";
@@ -6,11 +6,23 @@ import { customZodResolver } from "../utils/customZodResolver";
 export const UserEditPage = () => {
   const [userData, setUserData] = React.useState(null);
 
+  const handleUpdateUser = async (data) => {
+    const updatedUser = await updateUserData(data);
+    alert("User updated successfully!");
+    setUserData(updatedUser);
+  };
+
   React.useEffect(() => {
     fetchUserData().then((data) => setUserData(data));
   }, []);
 
-  return <>{userData && <UserEditForm defaultValues={userData} />}</>;
+  return (
+    <>
+      {userData && (
+        <UserEditForm defaultValues={userData} onSubmit={handleUpdateUser} />
+      )}
+    </>
+  );
 };
 
 const schema = z.object({
@@ -34,7 +46,8 @@ const UserEditForm = ({
   const {
     register,
     handleSubmit,
-    formState: { errors, isDirty },
+    formState: { errors, isDirty, isS },
+    reset,
   } = useForm({
     defaultValues,
     resolver: customZodResolver(schema),
@@ -43,6 +56,10 @@ const UserEditForm = ({
   const onFormSubmit = (data) => {
     onSubmit(data);
   };
+
+  useEffect(() => {
+    reset(defaultValues);
+  }, [defaultValues, reset]);
 
   return (
     <form
@@ -88,6 +105,22 @@ async function fetchUserData() {
   const data = await response.json();
 
   return data;
+}
+
+async function updateUserData(data) {
+  const response = await fetch(
+    `https://jsonplaceholder.typicode.com/users/${data.id}`,
+    {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    }
+  );
+  const result = await response.json();
+
+  return result;
 }
 
 function getStoredId() {
