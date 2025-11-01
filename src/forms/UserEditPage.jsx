@@ -26,11 +26,8 @@ const schema = z.object({
   email: z.email("Please enter a valid email address"),
   phone: z
     .string()
-    .trim()
-    .regex(
-      /^\+?[0-9\s\-()]{5,20}$/, // smallest number with min 4 phone number digits + 1 country code digit. Largest number with 17 phone number digits + 3 country code digits
-      "Please enter a valid telephone number including country code"
-    )
+    .min(5, "Phone number is too short")
+    .max(20, "Phone number is too long")
     .optional(),
 });
 
