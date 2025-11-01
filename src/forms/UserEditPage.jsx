@@ -102,28 +102,36 @@ const UserEditForm = ({
 async function fetchUserData() {
   const id = getStoredId();
 
-  const response = await fetch(
-    `https://jsonplaceholder.typicode.com/users/${id}`
-  );
-  const data = await response.json();
+  try {
+    const response = await fetch(
+      `https://jsonplaceholder.typicode.com/users/${id}`
+    );
+    const data = await response.json();
 
-  return data;
+    return data;
+  } catch (error) {
+    console.error("Error fetching user data:", error);
+  }
 }
 
 async function updateUserData(data) {
-  const response = await fetch(
-    `https://jsonplaceholder.typicode.com/users/${data.id}`,
-    {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(data),
-    }
-  );
-  const result = await response.json();
+  try {
+    const response = await fetch(
+      `https://jsonplaceholder.typicode.com/users/${data.id}`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      }
+    );
+    const result = await response.json();
 
-  return result;
+    return result;
+  } catch (error) {
+    console.error("Error updating user data:", error);
+  }
 }
 
 function getStoredId() {
