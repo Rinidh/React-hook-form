@@ -1,13 +1,23 @@
-import React, { useEffect } from "react";
-import { set, useForm } from "react-hook-form";
+import React from "react";
+import { useForm } from "react-hook-form";
 import z from "zod";
 import { customZodResolver } from "../utils/customZodResolver";
 
 export const UserEditPage = () => {
-  const { userData, fetchUserData, updateUserData, error, loading } =
-    useUserData();
+  const {
+    userData,
+    fetchUserData,
+    updateUserData,
+    error,
+    loading,
+    clearUserData,
+  } = useUserData();
 
-  React.useEffect(() => fetchUserData(), []);
+  React.useEffect(() => {
+    fetchUserData();
+
+    return () => clearUserData();
+  }, []);
 
   return (
     <>
@@ -86,8 +96,8 @@ const UserEditForm = ({
   );
 };
 
-const useUserData = (initialData) => {
-  const [userData, setUserData] = React.useState(initialData);
+const useUserData = () => {
+  const [userData, setUserData] = React.useState(null);
   const [error, setError] = React.useState(null);
   const [loading, setLoading] = React.useState(false);
 
@@ -135,7 +145,20 @@ const useUserData = (initialData) => {
     }
   }
 
-  return { userData, error, loading, fetchUserData, updateUserData };
+  function clearUserData() {
+    setUserData(null);
+    setError(null);
+    setLoading(false);
+  }
+
+  return {
+    userData,
+    error,
+    loading,
+    fetchUserData,
+    updateUserData,
+    clearUserData,
+  };
 };
 
 function getStoredId() {
